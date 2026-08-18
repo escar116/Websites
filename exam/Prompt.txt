@@ -1,0 +1,16 @@
+Please generate a 20-question multiple-choice exam reviewer based on the following text or topic. 
+
+Format the output strictly as plain text using the rules below:
+1. Every question must start with: q[N] = [Question text]
+2. The options must be coded as:
+   a[N] = [Option A]
+   b[N] = [Option B]
+   c[N] = [Option C]
+   d[N] = [Option D]
+3. Append "(ans)" to the correct option (e.g., c1 = Option C(ans)).
+4. Add an explanation for the answer using: e[N] = [Explanation text]
+5. Leave exactly one blank line between each question block.
+6. Replace [N] with the corresponding question number (1 to 20). Do not use placeholders or write markdown code blocks in the output.
+
+Here is the source content to generate the questions from:
+[PASTE YOUR DOCUMENT TEXT OR NOTES HERE]

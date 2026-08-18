@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroQuiz | Mock Exam Simulator</title>
+  <meta name="description" content="Generate and take custom interactive mock multiple-choice exams instantly using a simple plain text format.">
+  
+  <!-- Google Fonts: Outfit (Brand & UI) and JetBrains Mono (For parser editor) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Decorative Glow Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container nav-container">
+      <div class="logo-area">
+        <span class="logo-icon">📝</span>
+        <span class="logo-text">Aero<span>Quiz</span></span>
+      </div>
+      <div class="nav-controls">
+        <button id="editor-toggle" class="btn btn-secondary btn-sm">🖥️ Toggle Editor</button>
+        <button id="github-push-btn" class="btn btn-success btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          Push to GitHub
+        </button>
+        <button id="theme-toggle" class="btn-icon-only" aria-label="Toggle dark/light mode">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="container">
+    <div class="grid-layout" id="main-grid">
+      
+      <!-- LEFT COLUMN: TEXT EDITOR & PARSER -->
+      <section class="card panel-editor">
+        <div class="panel-header">
+          <h2>
+            <span class="step-num">1</span>
+            Input Question Text
+          </h2>
+          <div class="editor-actions">
+            <button id="btn-load-sample" class="btn btn-secondary btn-sm">Load Sample</button>
+            <button id="btn-clear" class="btn btn-danger-outline btn-sm">Clear</button>
+          </div>
+        </div>
+        
+        <p class="panel-desc">
+          Format: <code>q1 = Question</code>, <code>a1 = Option A</code>, and add <code>(ans)</code> to the correct option. Leave a blank line between questions.
+        </p>
+
+        <div class="textarea-wrapper">
+          <div class="line-numbers" id="line-numbers"></div>
+          <textarea id="questions-input" placeholder="q1 = What is the capital of France?&#10;a1 = Berlin&#10;b1 = Madrid&#10;c1 = Paris(ans)&#10;d1 = London&#10;&#10;q2 = Which programming language is known for web interactivity?&#10;a2 = C++&#10;b2 = Python&#10;c2 = JavaScript(ans)&#10;d2 = HTML" spellcheck="false"></textarea>
+        </div>
+
+        <div class="panel-footer">
+          <div id="parser-status" class="status-badge status-idle">
+            <span class="status-dot"></span>
+            <span class="status-text">Empty input</span>
+          </div>
+          <button id="btn-parse" class="btn btn-primary">Generate Exam</button>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: SIMULATOR & PREVIEW -->
+      <section class="card panel-simulator">
+        
+        <!-- STATE 1: IDLE / CONFIGURATION SCREEN -->
+        <div id="sim-state-config" class="sim-state active">
+          <div class="empty-state">
+            <div class="empty-icon">🎯</div>
+            <h3>Ready to Quiz</h3>
+            <p>Input your questions on the left and click <strong>Generate Exam</strong> to begin the simulator.</p>
+            
+            <div class="config-card" style="display: none;" id="config-options-card">
+              <h4>Exam Settings</h4>
+              <div class="settings-grid">
+                <div class="setting-item">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-shuffle-q" checked>
+                    <span class="slider"></span>
+                    <span class="label-text">Shuffle Questions</span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="setting-shuffle-a" checked>
+                    <span class="slider"></span>
+                    <span class="label-text">Shuffle Choices</span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <label for="setting-mode">Quiz Mode</label>
+                  <select id="setting-mode" class="form-control">
+                    <option value="practice">Practice Mode (Instant feedback)</option>
+                    <option value="exam">Exam Mode (Graded at the end)</option>
+                  </select>
+                </div>
+                <div class="setting-item">
+                  <label for="setting-timer">Time Limit</label>
+                  <select id="setting-timer" class="form-control">
+                    <option value="0">No Limit</option>
+                    <option value="300">5 Minutes</option>
+                    <option value="600">10 Minutes</option>
+                    <option value="1200">20 Minutes</option>
+                    <option value="1800">30 Minutes</option>
+                  </select>
+                </div>
+              </div>
+              <button id="btn-start-quiz" class="btn btn-success btn-lg btn-block">🚀 Start Simulator</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE 2: ACTIVE QUIZ -->
+        <div id="sim-state-active" class="sim-state">
+          <div class="quiz-header">
+            <div class="quiz-progress-info">
+              <span class="question-counter">Question <strong id="current-q-index">1</strong> of <strong id="total-q-count">5</strong></span>
+              <span class="quiz-timer" id="quiz-timer-display" style="display: none;">⏱️ <span id="timer-val">00:00</span></span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" id="progress-bar-fill" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <div class="quiz-content">
+            <h3 class="question-text" id="active-question-text"></h3>
+            <div class="options-list" id="active-options-list">
+              <!-- Choices generated by JavaScript -->
+            </div>
+          </div>
+
+          <div class="quiz-footer">
+            <div class="feedback-banner" id="feedback-banner" style="display: none;">
+              <span class="feedback-icon" id="feedback-icon"></span>
+              <span class="feedback-text" id="feedback-text"></span>
+            </div>
+            <div class="navigation-buttons">
+              <button id="btn-prev-q" class="btn btn-secondary-outline">Previous</button>
+              <button id="btn-next-q" class="btn btn-secondary">Next</button>
+              <button id="btn-submit-exam" class="btn btn-success" style="display: none;">Submit Exam</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE 3: RESULTS SCREEN -->
+        <div id="sim-state-results" class="sim-state">
+          <div class="results-container">
+            <div class="score-ring-wrapper">
+              <div class="score-ring">
+                <span class="score-percentage" id="results-pct">0%</span>
+                <span class="score-fraction" id="results-score">0 / 0</span>
+              </div>
+            </div>
+
+            <h3 class="results-heading" id="results-heading">Well Done!</h3>
+            <p class="results-summary" id="results-summary"></p>
+
+            <div class="results-stats">
+              <div class="stat-box">
+                <span class="stat-val" id="stat-time">--:--</span>
+                <span class="stat-lbl">Time Taken</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="stat-correct">0</span>
+                <span class="stat-lbl">Correct</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="stat-incorrect">0</span>
+                <span class="stat-lbl">Incorrect</span>
+              </div>
+            </div>
+
+            <div class="results-actions">
+              <button id="btn-restart-quiz" class="btn btn-primary">Retake Exam</button>
+              <button id="btn-review-answers" class="btn btn-secondary-outline">Review Answers</button>
+              <button id="btn-edit-questions" class="btn btn-secondary">Edit Questions</button>
+            </div>
+
+            <!-- REVIEW LIST -->
+            <div class="review-section" id="review-section" style="display: none;">
+              <h4>Detailed Review</h4>
+              <div class="review-list" id="review-list">
+                <!-- Javascript will populate review cards -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 AeroQuiz. Crafted with premium HTML/CSS/JS.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
