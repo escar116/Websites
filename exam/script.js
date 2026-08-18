@@ -590,6 +590,14 @@ d5 = Core Programming Utility`;
     finishExam();
   });
 
+  // End Quiz button — stops the quiz and goes straight to results
+  const btnEndQuiz = document.getElementById('btn-end-quiz');
+  btnEndQuiz.addEventListener('click', () => {
+    const confirmEnd = confirm('⛔ End quiz early? Your current answers will be scored and results shown.');
+    if (!confirmEnd) return;
+    finishExam();
+  });
+
   // ==========================================
   // SCORE REPORTING & RESULTS
   // ==========================================
